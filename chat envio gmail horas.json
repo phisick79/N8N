@@ -1,0 +1,204 @@
+{
+  "name": "chat envio gmail horas",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Eres un asistente que solo responde en español. IMPORTANTE: No incluyas procesos de pensamiento, razonamientos internos ni etiquetas de texto explicativo. Responde directamente al usuario de forma natural. Si usas una herramienta, solo confirma el resultado en español.\nTendrás acceso a las tools y las usaras para las peticiones.\nCrearas un correo electrónico en HTML, con las siguientes características, tendrás que consultar de las tools para crear un correo electrónico, los datos que debes consultar son de las columnas \"OT, FECHA, HORA COMIENZO, HORA FIN, HORARIO EXTRAS, HORARIO NOCTURNAS, EXTRAS, EXTRAS NOCTURNAS\" con esos datos cuando se pregunte por una hoja en concreto, tienes que seleccionar las filas la cual contengan datos en las columnas \"EXTRAS, EXTRAS NOCTURNAS\", no tengas en cuenta las que no contengan nada o sean \"0\", crea el correo con las líneas y los datos, al final del correo suma las horas extra y las nocturnas por separado y muéstralo al final, ordena por fecha las líneas extraídas.\nmanda siempre el mismo modelo de correo.\nEn la búsqueda de las tool ten en cuenta los nombre en mayúsculas, minúsculas y todas sus letras en mayúsculas, ejemplo \"febrero, Febrero, FEBRERO\" igual con todos los meses.\nSi el mes no contiene horas extra, manda un correo diciendo que no se han encontrado horas extra en el mes.\nquiero que me examines en la hoja de calculo las celdas \"H35\" que pertenece a media dieta y la \"h36\" que pertenece a dieta completa, agrega estos datos a el correo electrónico, si  alguno de los datos o esta vacio no lo incluyas en la creacion del correo electronico, haz lo mismo con \"total horas extra\" y \"horas extra nocturnas\"."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        544,
+        -96
+      ],
+      "id": "",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        64
+      ],
+      "id": "",
+      "name": "Memoria"
+    },
+    {
+      "parameters": {
+        "sendTo": "",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        64
+      ],
+      "id": "",
+      "name": "Mandar correo",
+      "webhookId": "",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hola, cual es el mes que quieres que te mande por correo?(Recuerda poner el mes en mayusculas.)",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        -96
+      ],
+      "id": "",
+      "name": "Chat de entrada",
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "model": "glm-5:cloud",
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        432,
+        64
+      ],
+      "id": "",
+      "name": "GLM-5 CLOUD",
+      "credentials": {
+        "ollamaApi": {
+          "id": "",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "",
+          "cachedResultUrl": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sheet', ``, 'string') }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        64
+      ],
+      "id": "",
+      "name": "horas",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Memoria": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandar correo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat de entrada": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GLM-5 CLOUD": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "horas": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "id": "",
+  "tags": []
+}
